@@ -1,0 +1,13 @@
+# -*- coding:utf-8 -*-
+project_path: D:/Program/Python/Tool/Host
+
+uic_path: F:/ProgramFiles/Anaconda3/envs/tool/Scripts/pyuic5.exe
+rcc_path: F:/ProgramFiles/Anaconda3/envs/tool/Scripts/pyrcc5.exe
+
+log_path: src/log.log
+key_path: m_config/key.json
+
+icon_dir: src/icon
+ui_dir: ui
+qrc_dir: src
+qrc_path: src/src.qrc

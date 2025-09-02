@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: 运行 main.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",  // 指定运行 main.py
+            "console": "integratedTerminal",         // 在集成终端中显示输出
+            "justMyCode": true
+        }
+    ]
+}

@@ -1,0 +1,9 @@
+<RCC>
+  <qresource prefix="com">
+    <file>icon/send_file.png</file>
+    <file>icon/file.png</file>
+    <file>icon/bl_scan.png</file>
+    <file>icon/com_close.png</file>
+    <file>icon/com_open.png</file>
+  </qresource>
+</RCC>
