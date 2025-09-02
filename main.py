@@ -33,8 +33,8 @@ class MainWindow(QWidget, Ui_Form):
         self.serial_worker.refresh_com.connect(self.handle_refresh_com)
         """position"""
         self.ui.posDial.move_signal.connect(self.update_position)
-        self.ui.posxDoubleSpinBox.keyPressEvent = self.update_position_from_spinbox
-        self.ui.posyDoubleSpinBox.keyPressEvent = self.update_position_from_spinbox
+        self.ui.posxDoubleSpinBox.keyPressEvent = self.update_position_from_spinbox_x
+        self.ui.posyDoubleSpinBox.keyPressEvent = self.update_position_from_spinbox_y
         self.ui.posDial.setWrapping(True)
         self.pos_x = 0
         self.pos_y = 0
@@ -45,7 +45,7 @@ class MainWindow(QWidget, Ui_Form):
         self.serial_worker.serial.write(
             bytes(string + "\r\n", 'utf-8', 'ignore'))
 
-    def update_position_from_spinbox(self,
+    def update_position_from_spinbox_x(self,
                                      e: typing.Optional[QtGui.QKeyEvent]):
         if not e or e.key() != 16777220:
             return super(type(self.ui.posxDoubleSpinBox),
@@ -58,11 +58,26 @@ class MainWindow(QWidget, Ui_Form):
             bytes(string + "\r\n", 'utf-8', 'ignore'))
 
         string = f'FMY {self.pos_y:.2f}'
-        QTimer.singleShot(10, lambda: self.serial_write(string))
+        QTimer.singleShot(15, lambda: self.serial_write(string))
+    
+    def update_position_from_spinbox_y(self,
+                                     e: typing.Optional[QtGui.QKeyEvent]):
+        if not e or e.key() != 16777220:
+            return super(type(self.ui.posyDoubleSpinBox),
+                         self.ui.posyDoubleSpinBox).keyPressEvent(e)
+        print("enter")
+        self.pos_x = float(self.ui.posxDoubleSpinBox.text())
+        self.pos_y = float(self.ui.posyDoubleSpinBox.text())
+        string = f'FMX {self.pos_x:.2f}'
+        self.serial_worker.serial.write(
+            bytes(string + "\r\n", 'utf-8', 'ignore'))
+
+        string = f'FMY {self.pos_y:.2f}'
+        QTimer.singleShot(15, lambda: self.serial_write(string))
 
     def update_position(self, value):
-        self.pos_x += math.cos(math.radians(value // 18 * 20)) * 0.1
-        self.pos_y += math.sin(math.radians(value // 18 * 20)) * 0.1
+        self.pos_x += math.cos(math.radians((360 - value) // 18 * 18)) * 0.1
+        self.pos_y += math.sin(math.radians((360 - value) // 18 * 18)) * 0.1
         self.ui.posxDoubleSpinBox.setValue(self.pos_x)
         self.ui.posyDoubleSpinBox.setValue(self.pos_y)
         string = f'FMX {self.pos_x:.2f}'
@@ -70,7 +85,7 @@ class MainWindow(QWidget, Ui_Form):
             bytes(string + "\r\n", 'utf-8', 'ignore'))
 
         string = f'FMY {self.pos_y:.2f}'
-        QTimer.singleShot(10, lambda: self.serial_write(string))
+        QTimer.singleShot(15, lambda: self.serial_write(string))
 
     def dialDragEnterEvent(self, a0: QtGui.QDragEnterEvent | None) -> None:
         print("drag")
