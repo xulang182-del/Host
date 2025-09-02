@@ -655,6 +655,15 @@
         "documentation": {}
     },
     {
+        "label": "typing",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "typing",
+        "description": "typing",
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
         "label": "subprocess",
         "kind": 6,
         "isExtraImport": true,
@@ -775,7 +784,7 @@
         "kind": 6,
         "importPath": "ui.ui_main_window",
         "description": "ui.ui_main_window",
-        "peekOfCode": "class Ui_Form(object):\n    def setupUi(self, Form):\n        Form.setObjectName(\"Form\")\n        Form.resize(684, 549)\n        Form.setStyleSheet(\"font: 9pt \\\"Microsoft JhengHei UI\\\";\")\n        self.verticalLayout_2 = QtWidgets.QVBoxLayout(Form)\n        self.verticalLayout_2.setObjectName(\"verticalLayout_2\")\n        self.horizontalLayout_15 = QtWidgets.QHBoxLayout()\n        self.horizontalLayout_15.setObjectName(\"horizontalLayout_15\")\n        self.tabWidget = QtWidgets.QTabWidget(Form)",
+        "peekOfCode": "class Ui_Form(object):\n    def setupUi(self, Form):\n        Form.setObjectName(\"Form\")\n        Form.resize(808, 635)\n        Form.setStyleSheet(\"font: 9pt \\\"Microsoft JhengHei UI\\\";\")\n        self.verticalLayout_2 = QtWidgets.QVBoxLayout(Form)\n        self.verticalLayout_2.setObjectName(\"verticalLayout_2\")\n        self.horizontalLayout_15 = QtWidgets.QHBoxLayout()\n        self.horizontalLayout_15.setObjectName(\"horizontalLayout_15\")\n        self.tabWidget = QtWidgets.QTabWidget(Form)",
         "detail": "ui.ui_main_window",
         "documentation": {}
     },
@@ -820,7 +829,7 @@
         "kind": 6,
         "importPath": "widget.DragDial",
         "description": "widget.DragDial",
-        "peekOfCode": "class DragDial(QDial):\n    move_signal = QtCore.pyqtSignal(int)\n    def __init__(self, parent=None):\n        super().__init__(parent)\n        self.setAcceptDrops(True)\n        self.timer = QtCore.QTimer(self)\n        self.timer.timeout.connect(self.update_position)\n        self.sliderPressed.connect(self.handle_drag_start)\n        self.sliderMoved.connect(self.handle_drag_move)\n        self.sliderReleased.connect(self.handle_drag_end)",
+        "peekOfCode": "class DragDial(QDial):\n    move_signal = QtCore.pyqtSignal(int)\n    key_enter_siganl = QtCore.pyqtSignal()\n    def __init__(self, parent=None):\n        super().__init__(parent)\n        self.setAcceptDrops(True)\n        self.timer = QtCore.QTimer(self)\n        self.timer.timeout.connect(self.update_position)\n        self.sliderPressed.connect(self.handle_drag_start)\n        self.sliderMoved.connect(self.handle_drag_move)",
         "detail": "widget.DragDial",
         "documentation": {}
     },
