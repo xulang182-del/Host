@@ -61,7 +61,7 @@ class Ui_Form(object):
         self.sendEdit = QtWidgets.QTextEdit(self.tab)
         self.sendEdit.setObjectName("sendEdit")
         self.horizontalLayout_3.addWidget(self.sendEdit)
-        self.posDial = QtWidgets.QDial(self.tab)
+        self.posDial = DragDial(self.tab)
         self.posDial.setMaximum(360)
         self.posDial.setPageStep(0)
         self.posDial.setProperty("value", 0)
@@ -227,4 +227,5 @@ class Ui_Form(object):
         self.blRecvCopyButton.setText(_translate("Form", "copy"))
         self.blRecvClearButton.setText(_translate("Form", "clear"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Form", "BlueTooth"))
+from widget.DragDial import DragDial
 import src.src

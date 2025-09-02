@@ -1,234 +1,449 @@
 import sys
-from PyQt5.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QLabel, QGroupBox, 
-    QSizePolicy, QHBoxLayout
-)
-from PyQt5.QtCore import Qt, QPoint, pyqtSignal
-from PyQt5.QtGui import QPainter, QPen, QBrush, QColor, QFont
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
+                             QDial, QLabel, QGroupBox, QPushButton, QSlider, 
+                             QHBoxLayout, QCheckBox)
+from PyQt5.QtCore import Qt, QPoint, QRectF, QPropertyAnimation, QPointF
+from PyQt5.QtGui import QPainter, QPen, QBrush, QColor, QFont, QLinearGradient, QConicalGradient
 
-class DraggableBallWidget(QWidget):
-    """自定义可拖动小球控件"""
-    
-    positionChanged = pyqtSignal(float, float)  # 位置变化信号(X, Y)
-    
-    def __init__(self, size=300, parent=None):
+class FixedDial(QDial):
+    """修复版Dial控件，确保所有位置可拖动"""
+    def __init__(self, size=200, parent=None):
         super().__init__(parent)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.setMinimumSize(size, size)
+        self.setFixedSize(size, size)
         
-        # 控件参数设置
-        self.ball_radius = 18
-        self.border_width = 4
-        self.border_color = QColor(100, 150, 200)
-        self.ball_color = QColor(220, 80, 80)
-        self.highlight_color = QColor(255, 190, 80)
+        # 配置固定范围和初始值
+        self.setRange(0, 360)  # 使用360度范围更直观
+        self.setValue(0)
         
-        # 小球初始位置在中心
-        self.ball_pos = QPoint(self.width() // 2, self.height() // 2)
-        self.is_dragging = False
-        
-        # 坐标显示文字
-        self.position_text = "X: 0.5, Y: 0.5"
-        
+        # 优化设置确保所有位置可达
+        self.setNotchesVisible(True)
+        self.setWrapping(True)  # 启用循环模式
+        self.setSingleStep(1)   # 最小步长为1度
+        self.setPageStep(30)    # 翻页步长为30度
+        self.setTracking(True)  # 确保实时跟踪位置
+
     def paintEvent(self, event):
+        """自定义绘制方法提供更好的视觉反馈"""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         
-        # 绘制边框
-        pen = QPen(self.border_color, self.border_width)
-        painter.setPen(pen)
-        painter.drawRect(self.rect().adjusted(
-            self.border_width // 2, 
-            self.border_width // 2,
-            -self.border_width // 2,
-            -self.border_width // 2
-        ))
+        center = self.rect().center()
+        size = min(self.width(), self.height())
+        radius = size // 2 - 15
         
-        # 绘制背景网格
-        pen.setColor(QColor(230, 230, 230, 150))
-        pen.setWidth(1)
-        painter.setPen(pen)
-        
-        # 绘制网格线
-        grid_size = 20
-        for i in range(grid_size, self.width(), grid_size):
-            painter.drawLine(i, 0, i, self.height())
-        for i in range(grid_size, self.height(), grid_size):
-            painter.drawLine(0, i, self.width(), i)
-        
-        # 绘制坐标原点
-        painter.setBrush(QBrush(QColor(120, 200, 150)))
-        painter.drawEllipse(QPoint(self.border_width*2, self.border_width*2), 4, 4)
-        
-        # 绘制小球
-        painter.setPen(Qt.NoPen)
-        
-        # 如果正在拖动，使用高亮颜色
-        if self.is_dragging:
-            painter.setBrush(self.highlight_color)
-        else:
-            painter.setBrush(self.ball_color)
-            
-        painter.drawEllipse(self.ball_pos, self.ball_radius, self.ball_radius)
-        
-        # 绘制小球内高光
-        painter.setBrush(Qt.white)
-        painter.drawEllipse(self.ball_pos.x()-self.ball_radius//3, 
-                          self.ball_pos.y()-self.ball_radius//3, 
-                          self.ball_radius//2, 
-                          self.ball_radius//2)
-        
-        # 绘制坐标系信息
-        painter.setPen(QColor(50, 50, 50))
-        painter.setFont(QFont("Arial", 10, QFont.Bold))
-        painter.drawText(10, self.height() - 20, f"({self.ball_pos.x()-self.border_width}, {self.ball_pos.y()-self.border_width})")
-        
-        # 绘制标准化坐标
-        painter.setPen(QColor(80, 80, 80))
-        norm_x = (self.ball_pos.x() - self.border_width) / (self.width() - self.border_width * 2)
-        norm_y = (self.ball_pos.y() - self.border_width) / (self.height() - self.border_width * 2)
-        norm_text = f"X: {norm_x:.2f}, Y: {norm_y:.2f}"
-        painter.drawText(self.width() - 150, self.height() - 20, norm_text)
-        
-    def mousePressEvent(self, event):
-        # 检查是否点在球上
-        if (event.pos() - self.ball_pos).manhattanLength() <= self.ball_radius:
-            self.is_dragging = True
-            self.update()
-    
-    def mouseMoveEvent(self, event):
-        if self.is_dragging:
-            # 限制小球在边界内（考虑边框和球半径）
-            new_x = max(self.border_width + self.ball_radius, 
-                      min(self.width() - self.border_width - self.ball_radius, 
-                      event.x()))
-            new_y = max(self.border_width + self.ball_radius, 
-                      min(self.height() - self.border_width - self.ball_radius, 
-                      event.y()))
-            
-            self.ball_pos = QPoint(new_x, new_y)
-            
-            # 计算并发出标准化坐标信号
-            norm_x = (self.ball_pos.x() - self.border_width - self.ball_radius) / (self.width() - 2*(self.border_width + self.ball_radius))
-            norm_y = (self.ball_pos.y() - self.border_width - self.ball_radius) / (self.height() - 2*(self.border_width + self.ball_radius))
-            self.position_text = f"X: {norm_x:.2f}, Y: {norm_y:.2f}"
-            self.positionChanged.emit(norm_x, norm_y)
-            
-            self.update()
-    
-    def mouseReleaseEvent(self, event):
-        if self.is_dragging:
-            self.is_dragging = False
-            self.update()
-    
-    def resizeEvent(self, event):
-        # 当控件大小改变时，更新小球位置保持比例
-        norm_x = (self.ball_pos.x() - self.border_width - self.ball_radius) / max(1, self.width() - 2*(self.border_width + self.ball_radius))
-        norm_y = (self.ball_pos.y() - self.border_width - self.ball_radius) / max(1, self.height() - 2*(self.border_width + self.ball_radius))
-        
-        self.ball_pos = QPoint(
-            int(self.border_width + self.ball_radius + norm_x * (self.width() - 2*(self.border_width + self.ball_radius))),
-            int(self.border_width + self.ball_radius + norm_y * (self.height() - 2*(self.border_width + self.ball_radius)))
+        # 绘制外环
+        outer_rect = QRectF(
+            center.x() - radius,
+            center.y() - radius,
+            radius * 2,
+            radius * 2
         )
-        self.update()
-
-class PositionControlPanel(QWidget):
-    """包含小球控件和位置信息的控制面板"""
-    
-    def __init__(self, size=400):
-        super().__init__()
-        self.setWindowTitle("可拖动小球位置控件")
-        self.setGeometry(300, 300, 500, 600)
         
-        # 创建主布局
-        main_layout = QVBoxLayout()
+        # 创建渐变效果
+        gradient = QConicalGradient(center, -self.value())
+        gradient.setColorAt(0.0, QColor(100, 150, 200, 220))
+        gradient.setColorAt(0.5, QColor(255, 140, 50, 240))
+        gradient.setColorAt(1.0, QColor(100, 150, 200, 220))
+        
+        painter.setPen(QPen(QColor(50, 50, 50), 3))
+        painter.setBrush(gradient)
+        painter.drawEllipse(outer_rect)
+        
+        # 绘制内环
+        inner_radius = radius - 20
+        inner_rect = QRectF(
+            center.x() - inner_radius,
+            center.y() - inner_radius,
+            inner_radius * 2,
+            inner_radius * 2
+        )
+        
+        painter.setPen(QPen(QColor(70, 70, 70), 2))
+        painter.setBrush(QBrush(QColor(240, 240, 240)))
+        painter.drawEllipse(inner_rect)
+        
+        # 绘制手柄
+        handle_radius = 12
+        angle = self.value() * 16  # QDial角度值（每度16个单位）
+        handle_x = center.x() + radius * 0.8 * math.cos(math.radians(self.value()))
+        handle_y = center.y() - radius * 0.8 * math.sin(math.radians(self.value()))
+        
+        painter.setPen(QPen(QColor(40, 40, 40), 1))
+        painter.setBrush(QBrush(QColor(230, 80, 60)))
+        painter.drawEllipse(QPointF(handle_x, handle_y), handle_radius, handle_radius)
+        
+        # 绘制指示线和指针
+        painter.setPen(QPen(QColor(30, 30, 30), 3))
+        painter.drawLine(center, QPointF(handle_x, handle_y))
+        
+        # 绘制中心点
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QBrush(QColor(50, 50, 50)))
+        painter.drawEllipse(center, 5, 5)
+        
+        # 绘制刻度
+        painter.setPen(QPen(QColor(80, 80, 80), 1))
+        for i in range(0, 360, 30):
+            angle_rad = math.radians(i)
+            x1 = center.x() + (radius - 5) * math.cos(angle_rad)
+            y1 = center.y() - (radius - 5) * math.sin(angle_rad)
+            x2 = center.x() + radius * math.cos(angle_rad)
+            y2 = center.y() - radius * math.sin(angle_rad)
+            painter.drawLine(int(x1), int(y1), int(x2), int(y2))
+            
+            # 添加刻度标签
+            if i % 90 == 0:
+                x = center.x() + (radius - 25) * math.cos(angle_rad)
+                y = center.y() - (radius - 25) * math.sin(angle_rad)
+                painter.setFont(QFont("Arial", 10, QFont.Bold))
+                painter.drawText(QPointF(x - 10, y + 4), f"{i}°")
+
+class DialFixDemo(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Dial 位置修复演示")
+        self.setGeometry(300, 300, 600, 600)
+        self.init_ui()
+    
+    def init_ui(self):
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        
+        # 主布局
+        main_layout = QVBoxLayout(central_widget)
         
         # 标题
-        title_label = QLabel("方框内拖动小球控件")
-        title_label.setStyleSheet("font-size: 18px; font-weight: bold;")
+        title_label = QLabel("Dial 所有位置可达性修复")
         title_label.setAlignment(Qt.AlignCenter)
+        title_label.setFont(QFont("Arial", 18, QFont.Bold))
+        title_label.setStyleSheet("color: #2c3e50; padding: 15px; background: #eef5ff; border-radius: 10px;")
         
-        # 信息面板
-        info_group = QGroupBox("位置信息")
-        info_layout = QVBoxLayout()
-        self.pos_label = QLabel("当前位置: X: 0.50, Y: 0.50")
-        self.pos_label.setStyleSheet("font-size: 14px;")
-        self.raw_pos_label = QLabel("绝对坐标: (0, 0)")
-        self.raw_pos_label.setStyleSheet("color: gray; font-size: 12px;")
+        # 创建修复版Dial控件
+        dial_size = 280
+        self.dial = FixedDial(dial_size)
         
-        info_layout.addWidget(self.pos_label)
-        info_layout.addWidget(self.raw_pos_label)
-        info_group.setLayout(info_layout)
+        # 原始Dial控件（用于对比）
+        self.original_dial = self.create_original_dial()
         
-        # 创建小球控件
-        self.ball_widget = DraggableBallWidget(size)
-        self.ball_widget.positionChanged.connect(self.update_position_info)
+        # 值显示
+        self.value_label = QLabel("当前值: 0°")
+        self.value_label.setFont(QFont("Arial", 16))
+        self.value_label.setStyleSheet("""
+            background: #f0f8ff; 
+            padding: 12px; 
+            border-radius: 8px;
+            border: 1px solid #3498db;
+        """)
         
-        # 设置小球初始位置在左下角
-        self.ball_widget.ball_pos = QPoint(
-            self.ball_widget.border_width + self.ball_widget.ball_radius,
-            self.ball_widget.height() - self.ball_widget.border_width - self.ball_widget.ball_radius
-        )
+        # 角度指示器
+        self.angle_indicator = QLabel()
+        self.angle_indicator.setFixedSize(60, 60)
+        self.update_angle_indicator(0)
         
-        # 添加说明文字
-        instruction = QLabel("← 拖动红色小球到任意位置")
-        instruction.setAlignment(Qt.AlignCenter)
-        instruction.setStyleSheet("color: #555555; font-style: italic;")
+        # 参数控制面板
+        control_group = QGroupBox("控制参数")
+        control_layout = QVBoxLayout()
         
-        # 添加控件到布局
+        # 最小值设置
+        min_layout = QHBoxLayout()
+        min_label = QLabel("最小值:")
+        min_label.setFixedWidth(80)
+        self.min_slider = QSlider(Qt.Horizontal)
+        self.min_slider.setRange(0, 360)
+        self.min_slider.setValue(0)
+        self.min_slider.valueChanged.connect(self.update_min)
+        min_layout.addWidget(min_label)
+        min_layout.addWidget(self.min_slider)
+        
+        # 最大值设置
+        max_layout = QHBoxLayout()
+        max_label = QLabel("最大值:")
+        max_label.setFixedWidth(80)
+        self.max_slider = QSlider(Qt.Horizontal)
+        self.max_slider.setRange(10, 360)
+        self.max_slider.setValue(360)
+        self.max_slider.valueChanged.connect(self.update_max)
+        max_layout.addWidget(max_label)
+        max_layout.addWidget(self.max_slider)
+        
+        # 步长设置
+        step_layout = QHBoxLayout()
+        step_label = QLabel("步长:")
+        step_label.setFixedWidth(80)
+        self.step_slider = QSlider(Qt.Horizontal)
+        self.step_slider.setRange(1, 30)
+        self.step_slider.setValue(1)
+        self.step_slider.valueChanged.connect(self.update_step)
+        step_layout.addWidget(step_label)
+        step_layout.addWidget(self.step_slider)
+        
+        # 高级选项
+        self.wrapping_check = QCheckBox("启用循环 (Wrapping)")
+        self.wrapping_check.setChecked(True)
+        self.wrapping_check.stateChanged.connect(self.update_wrapping)
+        
+        self.notch_check = QCheckBox("显示刻度 (Notches)")
+        self.notch_check.setChecked(True)
+        self.notch_check.stateChanged.connect(self.update_notches)
+        
+        # 添加到控制布局
+        control_layout.addLayout(min_layout)
+        control_layout.addLayout(max_layout)
+        control_layout.addLayout(step_layout)
+        control_layout.addWidget(self.wrapping_check)
+        control_layout.addWidget(self.notch_check)
+        control_group.setLayout(control_layout)
+        
+        # 测试按钮
+        btn_layout = QHBoxLayout()
+        
+        test_positions = [0, 90, 180, 270, 360]
+        for pos in test_positions:
+            btn = QPushButton(f"{pos}°")
+            btn.setStyleSheet("""
+                QPushButton {
+                    background: #3498db;
+                    color: white;
+                    padding: 8px;
+                    border-radius: 4px;
+                }
+                QPushButton:hover {
+                    background: #2980b9;
+                }
+            """)
+            btn.clicked.connect(lambda checked, pos=pos: self.set_dial_position(pos))
+            btn_layout.addWidget(btn)
+        
+        reset_btn = QPushButton("重置")
+        reset_btn.setStyleSheet("""
+            QPushButton {
+                background: #e74c3c;
+                color: white;
+                padding: 8px 15px;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+        """)
+        reset_btn.clicked.connect(self.reset_dial)
+        btn_layout.addWidget(reset_btn)
+        
+        # 显示区域布局
+        display_layout = QHBoxLayout()
+        dial_group = self.create_dial_group("修复版Dial", self.dial)
+        original_dial_group = self.create_dial_group("原始QDial", self.original_dial)
+        
+        display_layout.addWidget(dial_group)
+        display_layout.addWidget(original_dial_group)
+        
+        # 添加到主布局
         main_layout.addWidget(title_label)
-        main_layout.addWidget(info_group)
-        main_layout.addWidget(self.ball_widget)
-        main_layout.addWidget(instruction)
+        main_layout.addLayout(display_layout)
+        main_layout.addWidget(self.value_label, alignment=Qt.AlignCenter)
         
-        self.setLayout(main_layout)
+        # 角度指示器布局
+        indicator_layout = QHBoxLayout()
+        indicator_layout.addStretch()
+        indicator_layout.addWidget(self.angle_indicator)
+        indicator_layout.addStretch()
+        
+        main_layout.addLayout(indicator_layout)
+        main_layout.addWidget(control_group)
+        main_layout.addLayout(btn_layout)
+        
+        # 连接信号
+        self.dial.valueChanged.connect(self.update_value)
+        self.original_dial.valueChanged.connect(self.update_value)
     
-    def update_position_info(self, x, y):
-        """更新位置信息显示"""
-        # 更新坐标标签
-        self.pos_label.setText(f"当前位置: X: {x:.2f}, Y: {y:.2f}")
+    def create_dial_group(self, title, dial):
+        """创建包含Dial的分组"""
+        group = QGroupBox(title)
+        layout = QVBoxLayout()
         
-        # 计算并显示绝对坐标
-        abs_x = self.ball_widget.ball_pos.x()
-        abs_y = self.ball_widget.ball_pos.y()
-        self.raw_pos_label.setText(f"绝对坐标: ({abs_x}, {abs_y})")
+        layout.addWidget(dial, alignment=Qt.AlignCenter)
+        group.setLayout(layout)
         
-        # 简单的位置状态信息
-        if x < 0.2 or x > 0.8 or y < 0.2 or y > 0.8:
-            self.raw_pos_label.setStyleSheet("color: #FF5500; font-size: 12px;")
-        elif abs(x - 0.5) < 0.2 and abs(y - 0.5) < 0.2:
-            self.raw_pos_label.setStyleSheet("color: #008800; font-size: 12px;")
-        else:
-            self.raw_pos_label.setStyleSheet("color: gray; font-size: 12px;")
+        group.setStyleSheet("""
+            QGroupBox {
+                border: 2px solid #dce4ec;
+                border-radius: 10px;
+                margin: 5px;
+                padding: 15px;
+                background: white;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                subcontrol-position: top center;
+                padding: 0 10px;
+                background: white;
+                color: #2c3e50;
+                font-weight: bold;
+                font-size: 14px;
+            }
+        """)
+        
+        return group
+    
+    def create_original_dial(self):
+        """创建原始QDial用于对比"""
+        dial = QDial()
+        dial.setFixedSize(250, 250)
+        dial.setRange(0, 360)
+        dial.setValue(0)
+        dial.setNotchesVisible(True)
+        dial.setWrapping(True)
+        return dial
+    
+    def update_value(self, value):
+        """更新值显示"""
+        self.value_label.setText(f"当前值: {value}°")
+        self.update_angle_indicator(value)
+        
+        # 根据位置设置背景色
+        r = min(255, int(value * 255 / 360))
+        g = 100
+        b = max(50, int(255 - value * 255 / 360))
+        
+        self.value_label.setStyleSheet(f"""
+            background: rgb({r}, {g}, {b}, 220); 
+            color: {"white" if value > 200 else "black"};
+            padding: 12px; 
+            border-radius: 8px;
+            border: 1px solid #3498db;
+            font-weight: bold;
+        """)
+    
+    def update_angle_indicator(self, angle):
+        """更新角度指示器"""
+        size = 60
+        pixmap = QPixmap(size, size)
+        pixmap.fill(Qt.transparent)
+        
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.Antialiasing)
+        
+        center = QPoint(size//2, size//2)
+        radius = size//2 - 5
+        
+        # 绘制外部圆弧
+        painter.setPen(QPen(QColor(100, 100, 200), 3))
+        painter.drawArc(5, 5, size-10, size-10, 0, 360 * 16)
+        
+        # 绘制内部指示线
+        painter.setPen(QPen(QColor(230, 80, 60), 2))
+        rad = math.radians(angle)
+        x = center.x() + (radius - 5) * math.cos(rad)
+        y = center.y() - (radius - 5) * math.sin(rad)
+        painter.drawLine(center.x(), center.y(), int(x), int(y))
+        
+        # 绘制中心点
+        painter.setBrush(QBrush(QColor(50, 50, 50)))
+        painter.drawEllipse(center, 3, 3)
+        
+        # 绘制角度值
+        painter.setPen(Qt.black)
+        painter.setFont(QFont("Arial", 8))
+        painter.drawText(0, 0, size, size, Qt.AlignCenter, f"{angle}°")
+        
+        painter.end()
+        
+        self.angle_indicator.setPixmap(pixmap)
+    
+    def update_min(self, value):
+        """更新最小值"""
+        if value >= self.dial.maximum():
+            self.max_slider.setValue(value + 10)
+            return
+            
+        self.dial.setMinimum(value)
+        self.original_dial.setMinimum(value)
+    
+    def update_max(self, value):
+        """更新最大值"""
+        if value <= self.dial.minimum():
+            self.min_slider.setValue(value - 10)
+            return
+            
+        self.dial.setMaximum(value)
+        self.original_dial.setMaximum(value)
+    
+    def update_step(self, value):
+        """更新步长"""
+        self.dial.setSingleStep(value)
+        self.dial.setPageStep(value * 10)
+        self.original_dial.setSingleStep(value)
+        self.original_dial.setPageStep(value * 10)
+    
+    def update_wrapping(self, state):
+        """更新循环模式"""
+        wrap = state == Qt.Checked
+        self.dial.setWrapping(wrap)
+        self.original_dial.setWrapping(wrap)
+    
+    def update_notches(self, state):
+        """更新刻度显示"""
+        show = state == Qt.Checked
+        self.dial.setNotchesVisible(show)
+        self.original_dial.setNotchesVisible(show)
+    
+    def set_dial_position(self, angle):
+        """设置Dial到指定角度"""
+        # 添加动画效果
+        anim = QPropertyAnimation(self.dial, b"value")
+        anim.setDuration(800)
+        anim.setStartValue(self.dial.value())
+        anim.setEndValue(angle)
+        anim.setEasingCurve(QEasingCurve.OutElastic)
+        anim.start()
+        
+        # 同时设置原始Dial（无动画）
+        self.original_dial.setValue(angle)
+    
+    def reset_dial(self):
+        """重置Dial状态"""
+        self.set_dial_position(0)
+        self.min_slider.setValue(0)
+        self.max_slider.setValue(360)
+        self.step_slider.setValue(1)
+        self.wrapping_check.setChecked(True)
+        self.notch_check.setChecked(True)
 
 if __name__ == "__main__":
+    import math
+    from PyQt5.QtGui import QPixmap, QRadialGradient
+    
     app = QApplication(sys.argv)
     
-    # 设置应用样式
-    app.setStyle("Fusion")
+    # 设置全局样式
     app.setStyleSheet("""
         QWidget {
-            background-color: #f5f5f5;
-            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
         }
         QGroupBox {
-            border: 1px solid #d0d0d0;
-            border-radius: 5px;
-            margin-top: 1ex;
-            padding: 10px;
+            border: 1px solid #dce4ec;
+            border-radius: 8px;
+            margin: 8px 0;
+            padding: 10px 15px;
             background-color: white;
         }
-        QGroupBox::title {
-            subcontrol-origin: margin;
-            left: 10px;
-            padding: 0 3px;
-            color: #404040;
+        QSlider::groove:horizontal {
+            height: 8px;
+            background: #d0d0d0;
+            border-radius: 4px;
         }
-        QLabel {
-            padding: 5px;
+        QSlider::handle:horizontal {
+            background: #3498db;
+            border: 1px solid #2980b9;
+            width: 18px;
+            margin: -6px 0;
+            border-radius: 9px;
+        }
+        QSlider::sub-page:horizontal {
+            background: #3498db;
+            border-radius: 4px;
         }
     """)
     
-    window = PositionControlPanel(400)
+    window = DialFixDemo()
     window.show()
     sys.exit(app.exec_())

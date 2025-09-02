@@ -1,10 +1,12 @@
-from PyQt5.QtWidgets import QWidget, QFileDialog, QApplication
-from PyQt5.QtCore import QThread, QMetaObject, Q_ARG, Qt
+from PyQt5.QtWidgets import QWidget, QFileDialog, QApplication, QDial
+from PyQt5.QtCore import QThread, QMetaObject, Q_ARG, Qt, QTimer
 from PyQt5 import QtGui
 from utils.serial_thread import SerialWorker
 from utils.bluetooth_thread import BluetoothWorker
 from ui.ui_main_window import Ui_Form
 import math
+
+        
 
 
 class MainWindow(QWidget, Ui_Form):
@@ -29,12 +31,31 @@ class MainWindow(QWidget, Ui_Form):
         self.serial_worker.file_completed.connect(self.handle_file_complete)
         self.serial_worker.error_occurred.connect(self.show_error)
         self.serial_worker.refresh_com.connect(self.handle_refresh_com)
-        self.ui.posDial.valueChanged.connect(self.update_position)
+        
+        
+        """position"""
+        self.ui.posDial.move_signal.connect(self.update_position)
+        self.ui.posDial.setWrapping(True)
+        self.pos_x = 0
+        self.pos_y = 0
+        self.send_finished = True
         self.setup()
         
     def update_position(self, value):
-        value = value + 100
+        if not self.send_finished:
+            return
+        self.send_finished = False
+        self.pos_x += math.cos(math.radians(value // 18 * 20)) * 0.1
+        self.pos_y += math.sin(math.radians(value // 18 * 20)) * 0.1
+        string = f'MOV_X {self.pos_x:.2f}'
+        self.serial_worker.serial.write(bytes(string + "\r\n", 'utf-8', 'ignore'))
         
+        string = f'MOV_Y {self.pos_y:.2f}'
+        QTimer.singleShot(10, lambda: self.serial_worker.serial.write(bytes(string + "\r\n", 'utf-8', 'ignore')))
+        self.send_finished = True
+        
+    def dialDragEnterEvent(self, a0: QtGui.QDragEnterEvent | None) -> None:
+        print("drag")
 
     def setup(self):
         self.bluetooth_worker.scan_devices()

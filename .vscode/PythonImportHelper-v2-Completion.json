@@ -58,6 +58,30 @@
         "documentation": {}
     },
     {
+        "label": "QtCore",
+        "importPath": "PyQt5",
+        "description": "PyQt5",
+        "isExtraImport": true,
+        "detail": "PyQt5",
+        "documentation": {}
+    },
+    {
+        "label": "QtGui",
+        "importPath": "PyQt5",
+        "description": "PyQt5",
+        "isExtraImport": true,
+        "detail": "PyQt5",
+        "documentation": {}
+    },
+    {
+        "label": "DragDial",
+        "importPath": "widget.DragDial",
+        "description": "widget.DragDial",
+        "isExtraImport": true,
+        "detail": "widget.DragDial",
+        "documentation": {}
+    },
+    {
         "label": "src.src",
         "kind": 6,
         "isExtraImport": true,
@@ -203,6 +227,14 @@
         "documentation": {}
     },
     {
+        "label": "QTimer",
+        "importPath": "PyQt5.QtCore",
+        "description": "PyQt5.QtCore",
+        "isExtraImport": true,
+        "detail": "PyQt5.QtCore",
+        "documentation": {}
+    },
+    {
         "label": "Qt",
         "importPath": "PyQt5.QtCore",
         "description": "PyQt5.QtCore",
@@ -219,7 +251,23 @@
         "documentation": {}
     },
     {
-        "label": "pyqtSignal",
+        "label": "QRectF",
+        "importPath": "PyQt5.QtCore",
+        "description": "PyQt5.QtCore",
+        "isExtraImport": true,
+        "detail": "PyQt5.QtCore",
+        "documentation": {}
+    },
+    {
+        "label": "QPropertyAnimation",
+        "importPath": "PyQt5.QtCore",
+        "description": "PyQt5.QtCore",
+        "isExtraImport": true,
+        "detail": "PyQt5.QtCore",
+        "documentation": {}
+    },
+    {
+        "label": "QPointF",
         "importPath": "PyQt5.QtCore",
         "description": "PyQt5.QtCore",
         "isExtraImport": true,
@@ -382,6 +430,22 @@
         "documentation": {}
     },
     {
+        "label": "QLinearGradient",
+        "importPath": "PyQt5.QtGui",
+        "description": "PyQt5.QtGui",
+        "isExtraImport": true,
+        "detail": "PyQt5.QtGui",
+        "documentation": {}
+    },
+    {
+        "label": "QConicalGradient",
+        "importPath": "PyQt5.QtGui",
+        "description": "PyQt5.QtGui",
+        "isExtraImport": true,
+        "detail": "PyQt5.QtGui",
+        "documentation": {}
+    },
+    {
         "label": "QApplication",
         "importPath": "PyQt5.QtWidgets",
         "description": "PyQt5.QtWidgets",
@@ -430,7 +494,55 @@
         "documentation": {}
     },
     {
+        "label": "QDial",
+        "importPath": "PyQt5.QtWidgets",
+        "description": "PyQt5.QtWidgets",
+        "isExtraImport": true,
+        "detail": "PyQt5.QtWidgets",
+        "documentation": {}
+    },
+    {
+        "label": "QWidget",
+        "importPath": "PyQt5.QtWidgets",
+        "description": "PyQt5.QtWidgets",
+        "isExtraImport": true,
+        "detail": "PyQt5.QtWidgets",
+        "documentation": {}
+    },
+    {
+        "label": "QFileDialog",
+        "importPath": "PyQt5.QtWidgets",
+        "description": "PyQt5.QtWidgets",
+        "isExtraImport": true,
+        "detail": "PyQt5.QtWidgets",
+        "documentation": {}
+    },
+    {
         "label": "QApplication",
+        "importPath": "PyQt5.QtWidgets",
+        "description": "PyQt5.QtWidgets",
+        "isExtraImport": true,
+        "detail": "PyQt5.QtWidgets",
+        "documentation": {}
+    },
+    {
+        "label": "QDial",
+        "importPath": "PyQt5.QtWidgets",
+        "description": "PyQt5.QtWidgets",
+        "isExtraImport": true,
+        "detail": "PyQt5.QtWidgets",
+        "documentation": {}
+    },
+    {
+        "label": "QApplication",
+        "importPath": "PyQt5.QtWidgets",
+        "description": "PyQt5.QtWidgets",
+        "isExtraImport": true,
+        "detail": "PyQt5.QtWidgets",
+        "documentation": {}
+    },
+    {
+        "label": "QMainWindow",
         "importPath": "PyQt5.QtWidgets",
         "description": "PyQt5.QtWidgets",
         "isExtraImport": true,
@@ -454,6 +566,14 @@
         "documentation": {}
     },
     {
+        "label": "QDial",
+        "importPath": "PyQt5.QtWidgets",
+        "description": "PyQt5.QtWidgets",
+        "isExtraImport": true,
+        "detail": "PyQt5.QtWidgets",
+        "documentation": {}
+    },
+    {
         "label": "QLabel",
         "importPath": "PyQt5.QtWidgets",
         "description": "PyQt5.QtWidgets",
@@ -470,7 +590,15 @@
         "documentation": {}
     },
     {
-        "label": "QSizePolicy",
+        "label": "QPushButton",
+        "importPath": "PyQt5.QtWidgets",
+        "description": "PyQt5.QtWidgets",
+        "isExtraImport": true,
+        "detail": "PyQt5.QtWidgets",
+        "documentation": {}
+    },
+    {
+        "label": "QSlider",
         "importPath": "PyQt5.QtWidgets",
         "description": "PyQt5.QtWidgets",
         "isExtraImport": true,
@@ -479,6 +607,14 @@
     },
     {
         "label": "QHBoxLayout",
+        "importPath": "PyQt5.QtWidgets",
+        "description": "PyQt5.QtWidgets",
+        "isExtraImport": true,
+        "detail": "PyQt5.QtWidgets",
+        "documentation": {}
+    },
+    {
+        "label": "QCheckBox",
         "importPath": "PyQt5.QtWidgets",
         "description": "PyQt5.QtWidgets",
         "isExtraImport": true,
@@ -680,6 +816,15 @@
         "documentation": {}
     },
     {
+        "label": "DragDial",
+        "kind": 6,
+        "importPath": "widget.DragDial",
+        "description": "widget.DragDial",
+        "peekOfCode": "class DragDial(QDial):\n    move_signal = QtCore.pyqtSignal(int)\n    def __init__(self, parent=None):\n        super().__init__(parent)\n        self.setAcceptDrops(True)\n        self.timer = QtCore.QTimer(self)\n        self.timer.timeout.connect(self.update_position)\n        self.sliderPressed.connect(self.handle_drag_start)\n        self.sliderMoved.connect(self.handle_drag_move)\n        self.sliderReleased.connect(self.handle_drag_end)",
+        "detail": "widget.DragDial",
+        "documentation": {}
+    },
+    {
         "label": "MainWindow",
         "kind": 6,
         "importPath": "main",
@@ -725,20 +870,20 @@
         "documentation": {}
     },
     {
-        "label": "DraggableBallWidget",
+        "label": "FixedDial",
         "kind": 6,
         "importPath": "test",
         "description": "test",
-        "peekOfCode": "class DraggableBallWidget(QWidget):\n    \"\"\"自定义可拖动小球控件\"\"\"\n    positionChanged = pyqtSignal(float, float)  # 位置变化信号(X, Y)\n    def __init__(self, size=300, parent=None):\n        super().__init__(parent)\n        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)\n        self.setMinimumSize(size, size)\n        # 控件参数设置\n        self.ball_radius = 18\n        self.border_width = 4",
+        "peekOfCode": "class FixedDial(QDial):\n    \"\"\"修复版Dial控件，确保所有位置可拖动\"\"\"\n    def __init__(self, size=200, parent=None):\n        super().__init__(parent)\n        self.setFixedSize(size, size)\n        # 配置固定范围和初始值\n        self.setRange(0, 360)  # 使用360度范围更直观\n        self.setValue(0)\n        # 优化设置确保所有位置可达\n        self.setNotchesVisible(True)",
         "detail": "test",
         "documentation": {}
     },
     {
-        "label": "PositionControlPanel",
+        "label": "DialFixDemo",
         "kind": 6,
         "importPath": "test",
         "description": "test",
-        "peekOfCode": "class PositionControlPanel(QWidget):\n    \"\"\"包含小球控件和位置信息的控制面板\"\"\"\n    def __init__(self, size=400):\n        super().__init__()\n        self.setWindowTitle(\"可拖动小球位置控件\")\n        self.setGeometry(300, 300, 500, 600)\n        # 创建主布局\n        main_layout = QVBoxLayout()\n        # 标题\n        title_label = QLabel(\"方框内拖动小球控件\")",
+        "peekOfCode": "class DialFixDemo(QMainWindow):\n    def __init__(self):\n        super().__init__()\n        self.setWindowTitle(\"Dial 位置修复演示\")\n        self.setGeometry(300, 300, 600, 600)\n        self.init_ui()\n    def init_ui(self):\n        central_widget = QWidget()\n        self.setCentralWidget(central_widget)\n        # 主布局",
         "detail": "test",
         "documentation": {}
     }

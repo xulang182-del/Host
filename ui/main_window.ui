@@ -86,7 +86,7 @@
                 <widget class="QTextEdit" name="sendEdit"/>
                </item>
                <item>
-                <widget class="QDial" name="posDial">
+                <widget class="DragDial" name="posDial">
                  <property name="maximum">
                   <number>360</number>
                  </property>
@@ -330,6 +330,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DragDial</class>
+   <extends>QDial</extends>
+   <header>widget.DragDial</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../src/src.qrc"/>
  </resources>
