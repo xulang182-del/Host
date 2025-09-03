@@ -88,6 +88,18 @@
                <item>
                 <layout class="QVBoxLayout" name="verticalLayout_5">
                  <item>
+                  <widget class="QPushButton" name="cameraButton">
+                   <property name="text">
+                    <string>camera</string>
+                   </property>
+                   <property name="icon">
+                    <iconset>
+                     <normalon>:/com/icon/camera.png</normalon>
+                    </iconset>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
                   <widget class="QDoubleSpinBox" name="posxDoubleSpinBox">
                    <property name="minimum">
                     <double>-20.000000000000000</double>

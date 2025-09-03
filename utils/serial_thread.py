@@ -37,7 +37,7 @@ class SerialWorker(QThread):
         self.max_retries = 3
         self.scan_timer = QTimer(self)
         self.scan_timer.timeout.connect(self.scan_com_ports)
-        self.scan_timer.start(5000)
+        self.scan_timer.start(2000)
 
     def run(self):
         self.exec_()

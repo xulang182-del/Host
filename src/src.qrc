@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="com">
+    <file>icon/camera.png</file>
     <file>icon/send_file.png</file>
     <file>icon/file.png</file>
     <file>icon/bl_scan.png</file>
