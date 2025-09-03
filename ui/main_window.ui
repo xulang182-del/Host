@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>684</width>
-    <height>549</height>
+    <width>808</width>
+    <height>635</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -84,6 +84,48 @@
               <layout class="QHBoxLayout" name="horizontalLayout_3">
                <item>
                 <widget class="QTextEdit" name="sendEdit"/>
+               </item>
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_5">
+                 <item>
+                  <widget class="QPushButton" name="cameraButton">
+                   <property name="text">
+                    <string>camera</string>
+                   </property>
+                   <property name="icon">
+                    <iconset>
+                     <normalon>:/com/icon/camera.png</normalon>
+                    </iconset>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QDoubleSpinBox" name="posxDoubleSpinBox">
+                   <property name="minimum">
+                    <double>-20.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>20.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QDoubleSpinBox" name="posyDoubleSpinBox">
+                   <property name="minimumSize">
+                    <size>
+                     <width>100</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="minimum">
+                    <double>-20.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>20.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </item>
                <item>
                 <widget class="DragDial" name="posDial">

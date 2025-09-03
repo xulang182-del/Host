@@ -5,11 +5,15 @@ from utils.serial_thread import SerialWorker
 from utils.bluetooth_thread import BluetoothWorker
 from ui.ui_main_window import Ui_Form
 import math
-
-        
+import time
+import typing
+from ui.ui_camera import Ui_CameraWidget
+from utils.camera_thread import CameraWorker
+from widget.camera_widget import CameraWidget
 
 
 class MainWindow(QWidget, Ui_Form):
+
     def __init__(self):
         super().__init__()
         self.ui = Ui_Form()
@@ -31,29 +35,71 @@ class MainWindow(QWidget, Ui_Form):
         self.serial_worker.file_completed.connect(self.handle_file_complete)
         self.serial_worker.error_occurred.connect(self.show_error)
         self.serial_worker.refresh_com.connect(self.handle_refresh_com)
-        
-        
         """position"""
         self.ui.posDial.move_signal.connect(self.update_position)
+        self.ui.posxDoubleSpinBox.keyPressEvent = self.update_position_from_spinbox_x
+        self.ui.posyDoubleSpinBox.keyPressEvent = self.update_position_from_spinbox_y
         self.ui.posDial.setWrapping(True)
         self.pos_x = 0
         self.pos_y = 0
-        self.send_finished = True
+        """camera"""
+        self.camera_widget = CameraWidget(self.serial_worker)
+        self.ui.cameraButton.clicked.connect(self.start_camera)
+
         self.setup()
-        
+        self.pos_file = open("position.yaml", "w")
+
+    def start_camera(self):
+        self.camera_widget.show()
+
+    def serial_write(self, string):
+        self.serial_worker.serial.write(
+            bytes(string + "\r\n", 'utf-8', 'ignore'))
+
+    def update_position_from_spinbox_x(self,
+                                       e: typing.Optional[QtGui.QKeyEvent]):
+        if not e or e.key() != 16777220:
+            return super(type(self.ui.posxDoubleSpinBox),
+                         self.ui.posxDoubleSpinBox).keyPressEvent(e)
+        print("enter")
+        self.pos_x = float(self.ui.posxDoubleSpinBox.text())
+        self.pos_y = float(self.ui.posyDoubleSpinBox.text())
+
+        string = f'FMX {self.pos_x:.2f}'
+        self.serial_worker.serial.write(
+            bytes(string + "\r\n", 'utf-8', 'ignore'))
+
+        string = f'FMY {self.pos_y:.2f}'
+        QTimer.singleShot(15, lambda: self.serial_write(string))
+
+    def update_position_from_spinbox_y(self,
+                                       e: typing.Optional[QtGui.QKeyEvent]):
+        if not e or e.key() != 16777220:
+            return super(type(self.ui.posyDoubleSpinBox),
+                         self.ui.posyDoubleSpinBox).keyPressEvent(e)
+        print("enter")
+        self.pos_x = float(self.ui.posxDoubleSpinBox.text())
+        self.pos_y = float(self.ui.posyDoubleSpinBox.text())
+        string = f'FMX {self.pos_x:.2f}'
+        self.serial_worker.serial.write(
+            bytes(string + "\r\n", 'utf-8', 'ignore'))
+
+        string = f'FMY {self.pos_y:.2f}'
+        QTimer.singleShot(15, lambda: self.serial_write(string))
+
     def update_position(self, value):
-        if not self.send_finished:
-            return
-        self.send_finished = False
-        self.pos_x += math.cos(math.radians(value // 18 * 20)) * 0.1
-        self.pos_y += math.sin(math.radians(value // 18 * 20)) * 0.1
-        string = f'MOV_X {self.pos_x:.2f}'
-        self.serial_worker.serial.write(bytes(string + "\r\n", 'utf-8', 'ignore'))
-        
-        string = f'MOV_Y {self.pos_y:.2f}'
-        QTimer.singleShot(10, lambda: self.serial_worker.serial.write(bytes(string + "\r\n", 'utf-8', 'ignore')))
-        self.send_finished = True
-        
+        self.pos_x += math.cos(math.radians((360 - value) // 18 * 18)) * 0.1
+        self.pos_y += math.sin(math.radians((360 - value) // 18 * 18)) * 0.1
+        self.ui.posxDoubleSpinBox.setValue(self.pos_x)
+        self.ui.posyDoubleSpinBox.setValue(self.pos_y)
+
+        string = f'FMX {self.pos_x:.2f}'
+        self.serial_worker.serial.write(
+            bytes(string + "\r\n", 'utf-8', 'ignore'))
+
+        string = f'FMY {self.pos_y:.2f}'
+        QTimer.singleShot(15, lambda: self.serial_write(string))
+
     def dialDragEnterEvent(self, a0: QtGui.QDragEnterEvent | None) -> None:
         print("drag")
 
@@ -161,7 +207,8 @@ class MainWindow(QWidget, Ui_Form):
     def send_data(self):
         if self.serial_worker.serial.isOpen():
             text = self.ui.sendEdit.toPlainText()
-            self.serial_worker.serial.write(bytes(text + "\r\n", 'utf-8', 'ignore'))
+            self.serial_worker.serial.write(
+                bytes(text + "\r\n", 'utf-8', 'ignore'))
 
     def choose_file(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -199,6 +246,9 @@ class MainWindow(QWidget, Ui_Form):
         if self.bluetooth_worker.socket.isOpen():
             self.bluetooth_worker.socket.close()
         super().closeEvent(event)
+
+    def __del__(self):
+        pass
 
 
 if __name__ == '__main__':
